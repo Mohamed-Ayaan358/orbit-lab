@@ -6,7 +6,7 @@ import { EARTH_RADIUS_KM, SIDEREAL_DAY_S, TAU, SITES, circularOrbit, orbitPositi
 const $ = id => document.getElementById(id);
 const storageKey = 'orbit-lab-missions-v1';
 const MAX_SATELLITES = 30;
-const colors = [0xb8f6d4, 0x78b8ff, 0xffbc7a, 0xc4b3ff, 0xffa8bb];
+const colors = [0xffe079, 0xff8fcb, 0xa6ff83, 0xffab73, 0xc5abff];
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let scene, renderer, camera, controls, earth, clouds, earthGroup, markerGroup, preview;
 let simulationTime = 0, paused = reducedMotion, lastTime = 0, flight = null, selectedId = null;
@@ -162,14 +162,15 @@ function makeOrbitLine(mission, opacity = .34, dashed = false) {
 }
 function satelliteModel(color) {
   const group = new THREE.Group();
-  const body = new THREE.Mesh(satelliteGeometry, new THREE.MeshStandardMaterial({color: 0xeeeeee, metalness: .65, roughness: .4})); group.add(body);
+  const body = new THREE.Mesh(satelliteGeometry, new THREE.MeshStandardMaterial({color, emissive:color, emissiveIntensity:.2, metalness:.4, roughness:.4})); group.add(body);
   const panelMaterial = new THREE.MeshStandardMaterial({color: 0x284571, emissive: color, emissiveIntensity: .12, metalness: .4, roughness: .45});
   for (const side of [-1, 1]) {
     const panel = new THREE.Mesh(new THREE.BoxGeometry(.048, .004, .033), panelMaterial);
     panel.position.x = side * .042; group.add(panel);
   }
   const beacon = new THREE.Mesh(new THREE.SphereGeometry(.009, 8, 6), new THREE.MeshBasicMaterial({color}));
-  beacon.position.y = .02; group.add(beacon); return group;
+  beacon.position.y = .02; group.add(beacon);
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(.042,.002,8,32),new THREE.MeshBasicMaterial({color}));ring.rotation.x=Math.PI/2;group.add(ring);return group;
 }
 function addSatellite(parameters, persist = true) {
   if (satellites.length >= MAX_SATELLITES) {message('This browser sandbox supports up to 30 satellites. Remove one to add another.'); return null;}
@@ -177,7 +178,7 @@ function addSatellite(parameters, persist = true) {
   mission.mesh = satelliteModel(mission.color); scene.add(mission.mesh);
   mission.line = makeOrbitLine(mission); scene.add(mission.line);
   satellites.push(mission); updateFleet();
-  if (persist) save();
+  if (persist) {save();document.dispatchEvent(new CustomEvent('orbit:deployed',{detail:{name:mission.name,altitude:mission.altitude,inclination:mission.inclination}}));}
   return mission;
 }
 function disposeObject(object) {
@@ -349,7 +350,7 @@ function animate(time) {
     mission.mesh.position.set(...orbitPosition(currentRadius(mission.altitude), mission.inclination, mission.raan, phase));
     mission.mesh.rotation.y = phase;
     // Fixed enlarged models remain readable at higher camera distances.
-    mission.mesh.scale.setScalar(Math.min(8, Math.max(1, camera.position.length() / 5)));
+    mission.mesh.scale.setScalar((Number($('marker-size')?.value)||5)/3 * Math.min(8, Math.max(1, camera.position.length() / 5)));
   }
   if (preview && !paused) {
     // The candidate plane follows the rotating launch site; deployed orbits stay inertial.

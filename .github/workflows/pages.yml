@@ -36,7 +36,7 @@ jobs:
       - name: Prepare static site
         run: |
           mkdir _site
-          cp index.html app.js orbits.js lab.js random.js catalog-worker.js simulation-worker.js styles.css CREDITS.md _site/
+          cp index.html app.js orbits.js lab.js random.js risk.js help.js population-model.js catalog-worker.js simulation-worker.js styles.css CREDITS.md _site/
           cp -R assets vendor downloads data _site/
           touch _site/.nojekyll
       - name: Configure Pages

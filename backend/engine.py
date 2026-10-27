@@ -17,7 +17,18 @@ def fragment_draw(rng, model, mean, size, dispersion=5.0, cv=.8, events=None):
     location=np.log(np.maximum(mu,1e-12))-.5*sigma2
     return np.rint(rng.lognormal(location,np.sqrt(sigma2))).astype(np.int64)*(k>0)
 
-def run_scenario(cfg, include_runs=False):
+def collision_proxy(history, coefficient, start_year=0):
+    hazard=np.zeros(history.shape[1]);rows=[]
+    for year in range(history.shape[0]):
+        if year>start_year:hazard+=coefficient*history[year-1]/1e6
+        p=-np.expm1(-hazard)
+        rows.append({'year':year,'mean':float(p.mean()),'low':float(np.quantile(p,.025)),'high':float(np.quantile(p,.975))})
+    return {'label':'Hypothetical debris-collision probability proxy','start_year':start_year,
+      'formula':'1 - exp(-sum(kappa * D_previous_year / 1e6))',
+      'scope':'Test satellite held in orbit; no geometry, cross-section, covariance, avoidance or actual mission-specific probability.',
+      'trajectory':rows}
+
+def run_scenario(cfg, include_runs=False, comparison=True):
     rng=np.random.default_rng(cfg['seed']);r=cfg['runs'];years=cfg['years']
     S=np.full(r,cfg['initial_satellites'],dtype=np.int64)
     D=np.full(r,cfg['initial_debris'],dtype=np.int64)
@@ -58,5 +69,13 @@ def run_scenario(cfg, include_runs=False):
       'annual_fragments':[float(x.mean()) for x in new],
       'annual_collisions':[float(x.mean()) for x in collisions]}
 
+    result['collision_proxy']=collision_proxy(H,cfg['collision_coefficient'],cfg['event_year'] if cfg['event_type']=='satellite_launch' else 0)
+    if comparison and cfg['event_type']=='abstract_asat':
+        baseline=run_scenario(cfg|{'event_type':'none'},comparison=False)
+        result['counterfactual']={'label':'Same assumptions, no extra breakup',
+          'trajectory':baseline['trajectory'],'collision_proxy':baseline['collision_proxy'],
+          'final_debris_mean':baseline['final']['mean'],'mean_final_delta':result['final']['mean']-baseline['final']['mean'],
+          'secondary_collisions_delta':sum(result['annual_collisions'])-sum(baseline['annual_collisions']),
+          'secondary_fragments_delta':sum(result['annual_fragments'])-result['event']['mean_new_debris']-sum(baseline['annual_fragments'])}
     if include_runs:result['final_runs']=[{'run':i,'satellites':int(S[i]),'debris':int(D[i])} for i in range(r)]
     return result

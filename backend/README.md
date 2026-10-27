@@ -71,3 +71,11 @@ docker run --rm -p 8000:8000 orbit-lab-api
 Deploy that image on a Python/container hosting service of your choice with an HTTPS endpoint. Set `ORBIT_ALLOWED_ORIGINS` to a comma-separated list of exact frontend origins. The default allows the project’s GitHub Pages origin and local development. CORS is not authentication. Before exposing the CPU-intensive API publicly, put authentication, rate limits, request limits and a job queue in front of it. This repository does not create a paid hosting account or a public compute endpoint.
 
 Run checks with `python -m unittest backend.test_engine -v`.
+
+## Deployment probability proxy and breakup feedback
+
+Each response now includes `collision_proxy`: the chance of at least one collision for a hypothetical test satellite held in orbit under an independent Poisson exposure model. For each simulated population history, the annual hazard is `kappa * D_previous_year / 1e6`; cumulative probability is `1 - exp(-sum(hazard))`. The API reports the mean and 2.5/97.5% quantiles across population histories. A deployment event starts exposure after its insertion year. It does not count risk before deployment.
+
+This is a **population teaching proxy**, not an actual collision probability for a catalog orbit. Satellite cross-section, orbital overlap, relative velocities, state covariance, maneuvers and retirement of the test object are omitted. All custom missions share the same assumed rate regardless of altitude/inclination. Marker size has no effect on probability. The 95% band reflects model population variability, not uncertainty about physical truth.
+
+An abstract breakup run also computes a `counterfactual` arm with the same initial counts, parameters and seed but no extra breakup. It returns baseline population/risk curves, the final mean population difference, and differences in later collisions and fragments. The initial event's fragments are subtracted from the later-fragment difference. Debris does not reproduce; further collisions can create new fragments, while decay removes objects. No debris–debris collisions are modeled. Differences may be small or negative from dynamics and Monte Carlo noise; the interface does not force a worsening result. This comparison doubles the ensemble work for an abstract breakup request. It is a conditional model comparison, not an empirical causal estimate.

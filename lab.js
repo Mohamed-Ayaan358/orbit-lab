@@ -1,15 +1,16 @@
 import * as THREE from 'three';
+import {setupHelp} from './help.js';
 import {randomStream,poisson,histogram} from './random.js';
 import {orbitPosition,displayRadius,circularOrbit,TAU} from './orbits.js';
-const $=id=>document.getElementById(id),number=x=>Number(x).toLocaleString(undefined,{maximumFractionDigits:1});
+const $=id=>document.getElementById(id),number=x=>Number(x).toLocaleString(undefined,{maximumFractionDigits:Math.abs(Number(x))<1?4:2});
 const NS='http://www.w3.org/2000/svg';
 function element(tag,attributes={},text){const node=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attributes))node.setAttribute(k,v);if(text!==undefined)node.textContent=text;return node;}
-const compact=x=>Math.abs(x)>=1000?Intl.NumberFormat('en',{notation:'compact',maximumFractionDigits:1}).format(x):Number(x.toFixed(2)).toString();
-function plot(id,rows,{type='bars',xLabel,yLabel,title,band=false,color='#78b8ff',reference=null}={}){
+const compact=x=>Math.abs(x)>=1000?Intl.NumberFormat('en',{notation:'compact',maximumFractionDigits:1}).format(x):Number(x.toPrecision(3)).toString();
+function plot(id,rows,{type='bars',xLabel,yLabel,title,band=false,color='#78b8ff',reference=null,yCap=null,valueLabel='median'}={}){
  const host=$(id),width=Math.max(270,host.getBoundingClientRect().width),height=255,m={l:66,r:16,t:16,b:54};host.replaceChildren();
  const svg=element('svg',{viewBox:`0 0 ${width} ${height}`,role:'img','aria-label':title});svg.append(element('title',{},title));host.append(svg);
  let xmin=Math.min(...rows.map(r=>r.x0??r.x)),xmax=Math.max(...rows.map(r=>r.x1??r.x)),ymax=Math.max(...rows.flatMap(r=>[r.y??r.count??0,r.high??0,r.theory??0]));
- if(xmin===xmax)xmax=xmin+1;ymax=Math.max(1e-9,ymax)*1.08;
+ if(xmin===xmax)xmax=xmin+1;ymax=ymax>0?ymax*1.08:1;if(yCap!==null)ymax=Math.min(yCap,ymax);
  const x=v=>m.l+(v-xmin)/(xmax-xmin)*(width-m.l-m.r),y=v=>height-m.b-v/ymax*(height-m.b-m.t);
  svg.append(element('rect',{x:m.l,y:m.t,width:width-m.l-m.r,height:height-m.t-m.b,class:'chart-frame'}));
  const ticks=width<400?3:5;
@@ -25,11 +26,23 @@ function plot(id,rows,{type='bars',xLabel,yLabel,title,band=false,color='#78b8ff
  if(reference!==null&&reference>=xmin&&reference<=xmax)marks.append(element('line',{x1:x(reference),x2:x(reference),y1:m.t,y2:height-m.b,stroke:'#ffbc7a','stroke-dasharray':'4 4'}));
  const tip=document.createElement('div');tip.className='chart-tip';tip.textContent='Move over the graph to inspect values.';host.append(tip);
  const guide=element('line',{y1:m.t,y2:height-m.b,stroke:'#b8f6d4',visibility:'hidden'});marks.append(guide);
- svg.addEventListener('pointermove',event=>{const rect=svg.getBoundingClientRect(),px=(event.clientX-rect.left)/rect.width*width,value=xmin+Math.max(0,Math.min(1,(px-m.l)/(width-m.l-m.r)))*(xmax-xmin);const row=rows.reduce((best,r)=>Math.abs((r.x??(r.x0+r.x1)/2)-value)<Math.abs((best.x??(best.x0+best.x1)/2)-value)?r:best,rows[0]);guide.setAttribute('x1',Math.max(m.l,Math.min(width-m.r,px)));guide.setAttribute('x2',Math.max(m.l,Math.min(width-m.r,px)));guide.setAttribute('visibility','visible');tip.textContent=type==='bars'?`${xLabel}: ${number(row.x0)}–${number(row.x1)} · ${yLabel}: ${number(row.count??row.y)}`:`${xLabel}: ${number(row.x)} · median: ${number(row.y)}${band?` · interval: ${number(row.low)}–${number(row.high)}`:''}`;});
+ svg.addEventListener('pointermove',event=>{const rect=svg.getBoundingClientRect(),px=(event.clientX-rect.left)/rect.width*width,value=xmin+Math.max(0,Math.min(1,(px-m.l)/(width-m.l-m.r)))*(xmax-xmin);const row=rows.reduce((best,r)=>Math.abs((r.x??(r.x0+r.x1)/2)-value)<Math.abs((best.x??(best.x0+best.x1)/2)-value)?r:best,rows[0]);guide.setAttribute('x1',Math.max(m.l,Math.min(width-m.r,px)));guide.setAttribute('x2',Math.max(m.l,Math.min(width-m.r,px)));guide.setAttribute('visibility','visible');tip.textContent=type==='bars'?`${xLabel}: ${number(row.x0)}–${number(row.x1)} · ${yLabel}: ${number(row.count??row.y)}`:`${xLabel}: ${number(row.x)} · ${valueLabel}: ${number(row.y)}${band?` · interval: ${number(row.low)}–${number(row.high)}`:''}${row.theory!==undefined?` · no-extra-breakup: ${number(row.theory)}`:''}`;});
 }
 export async function setupLab(world){
  let result=null,presets={},teaching=null,catalogInfo=null,apiBase='',simWorker=null,catalogWorker=null,catalogPoints=null,catalogPending=false,catalogLast=0,catalogTargets=null,catalogStart=null,catalogBlend=0,scenarioPoints=null,breakupAge=999;
- const catalogGeometry=new THREE.BufferGeometry();catalogPoints=new THREE.Points(catalogGeometry,new THREE.PointsMaterial({vertexColors:true,size:.009,transparent:true,opacity:.8,sizeAttenuation:true}));world.scene.add(catalogPoints);
+ setupHelp();
+ const catalogGeometry=new THREE.BufferGeometry();
+ const catalogMaterial=new THREE.ShaderMaterial({transparent:true,depthWrite:false,
+ uniforms:{markerSize:{value:Number($('marker-size').value)},pixelRatio:{value:Math.min(devicePixelRatio,2)}},
+ vertexShader:`attribute float aActive;uniform float markerSize;uniform float pixelRatio;varying float vActive;
+ void main(){vActive=aActive;vec4 p=modelViewMatrix*vec4(position,1.0);gl_Position=projectionMatrix*p;gl_PointSize=(aActive>.5?markerSize:2.2)*pixelRatio;}`,
+ fragmentShader:`varying float vActive;void main(){vec2 p=gl_PointCoord*2.0-1.0;
+ if(vActive>.5){float d=abs(p.x)+abs(p.y);if(d>1.0)discard;gl_FragColor=vec4(mix(vec3(.12,.8,1.0),vec3(.75,1.0,1.0),step(.72,d)),1.0);}
+ else{if(dot(p,p)>1.0)discard;gl_FragColor=vec4(1.0,.42,.12,.85);}
+ #include <colorspace_fragment>
+ }`});
+ catalogPoints=new THREE.Points(catalogGeometry,catalogMaterial);world.scene.add(catalogPoints);
+ $('marker-size').addEventListener('input',()=>{catalogMaterial.uniforms.markerSize.value=Number($('marker-size').value);$('marker-size-label').value=$('marker-size').value+' px';});
  function tab(name){document.querySelectorAll('[data-panel]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.panel===name)));for(const id of ['missions','population','models'])$('panel-'+id).hidden=id!==name;}
  document.querySelectorAll('[data-panel]').forEach(button=>button.addEventListener('click',()=>tab(button.dataset.panel)));
  function redraw(){if(!result||!teaching)return;
@@ -40,6 +53,23 @@ export async function setupLab(world){
  const rate=result.config.annual_launches/12,rand=randomStream(20261027),means=Array.from({length:2000},()=>Array.from({length:12},()=>poisson(rand,rate)).reduce((a,b)=>a+b,0)/12),se=Math.sqrt(rate/12);
  const rows=histogram(means,24).map(r=>{const center=(r.x0+r.x1)/2;return {...r,count:undefined,y:r.count/(2000*(r.x1-r.x0)),theory:se>0?Math.exp(-.5*((center-rate)/se)**2)/(se*Math.sqrt(2*Math.PI)):0,x:center};});
  plot('chart-normal',rows,{xLabel:'Mean launches / month',yLabel:'Density',title:'Normal approximation for 2000 independent twelve-month sample means'});
+ const proxy=result.collision_proxy;
+ if(proxy){
+ const baselineRisk=result.counterfactual?.collision_proxy?.trajectory;
+ const riskRows=proxy.trajectory.filter(r=>r.year>=proxy.start_year).map(r=>({x:r.year-proxy.start_year,y:r.mean*100,low:r.low*100,high:r.high*100,...(baselineRisk?{theory:baselineRisk[r.year].mean*100}:{})}));
+ plot('chart-risk',riskRows,{type:'line',band:true,yCap:100,valueLabel:'mean (%)',xLabel:'Years of hypothetical exposure',yLabel:'Probability (%)',title:'Model-only probability of at least one debris collision for a test satellite',color:'#b8f6d4'});
+ const end=riskRows.at(-1);$('risk-caption').textContent=`Green: mean and middle 95% of model probabilities. After ${end.x} exposure years: ${number(end.y)}%. ${baselineRisk?'Orange: no-extra-breakup comparison. ':''}Not an actual risk estimate for the deployed orbit; all custom orbits share the same assumed rate.`;
+ }
+ if(result.counterfactual){
+ const base=result.counterfactual;
+ plot('chart-feedback',t.map((r,i)=>({x:r.year,y:r.median,theory:base.trajectory[i].median,low:r.low,high:r.high})),{type:'line',band:true,xLabel:'Scenario year',yLabel:'Debris objects',title:'Generic breakup scenario versus no-extra-breakup baseline',color:'#df9bff',reference:result.event.year});
+ $('feedback-caption').textContent='Purple: extra-breakup median and middle 95% of runs. Orange: no-extra-breakup median. Dashed line: initial event. Later satellite–debris collisions can add fragments; removal can reduce them.';
+ const signed=n=>(n>=0?'+':'')+number(n);
+ $('feedback-summary').textContent=`Initial extra fragments (mean): ${number(result.event.mean_new_debris)}. Final mean difference: ${signed(base.mean_final_delta)} debris. Later collisions difference: ${signed(base.secondary_collisions_delta)}. Later fragments difference: ${signed(base.secondary_fragments_delta)}. These are Monte Carlo differences between conditional scenarios, not real-world causal estimates.`;
+ }else{
+ $('chart-feedback').replaceChildren();const note=document.createElement('div');note.className='chart-empty';note.textContent='Choose ASAT aftermath in Missions, or an abstract breakup event in Models, to compare with a no-extra-breakup future.';$('chart-feedback').append(note);$('feedback-caption').textContent='Debris does not replicate by itself. Later collisions create more fragments; the model also removes debris over time.';$('feedback-summary').textContent='';
+ }
+
  }
  new ResizeObserver(()=>redraw()).observe($('chart-growth'));
  function showResult(out){
@@ -69,7 +99,7 @@ export async function setupLab(world){
   const prov=$('catalog-provenance');for(const group of data.manifest.groups){const p=document.createElement('p'),link=document.createElement('a');link.href=group.source;link.target='_blank';link.rel='noreferrer';link.textContent=group.group;p.append(link,document.createTextNode(` · ${group.count??0} records · element epochs ${group.epoch_min??'unavailable'} through ${group.epoch_max??'unavailable'}`));prov.append(p);}requestPositions();
  }else if(data.type==='positions'){
   catalogPending=false;catalogLast=performance.now();catalogBlend=0;const prior=catalogGeometry.getAttribute('position');catalogStart=prior&&prior.array.length===data.positions.length?prior.array.slice():data.positions.slice();catalogTargets=data.positions;
-  catalogGeometry.setAttribute('position',new THREE.BufferAttribute(catalogStart.slice(),3));catalogGeometry.setAttribute('color',new THREE.BufferAttribute(data.colors,3));catalogGeometry.computeBoundingSphere();
+  catalogGeometry.setAttribute('position',new THREE.BufferAttribute(catalogStart.slice(),3));catalogGeometry.setAttribute('color',new THREE.BufferAttribute(data.colors,3));catalogGeometry.setAttribute('aActive',new THREE.BufferAttribute(Float32Array.from({length:data.colors.length/3},(_,i)=>data.colors[i*3]<.9?1:0),1));catalogGeometry.computeBoundingSphere();
   $('catalog-drawn').textContent=`Showing ${number(data.valid)} valid propagated positions of ${number(data.total)} selected catalog records; ${number(data.drawn-data.valid)} propagation failures/below-Earth positions excluded. Geometry is at the accelerated snapshot time.`;
  }else if(data.type==='error'){catalogPending=false;$('catalog-status').textContent=`Catalog unavailable: ${data.message}. Synthetic scenarios still work.`;}
  };
@@ -92,6 +122,7 @@ export async function setupLab(world){
  return cfg;
  }
  async function run(){
+ if($('run-model').disabled)return;
  try{
  const cfg=config();$('run-model').disabled=true;$('breakup').disabled=true;$('model-status').textContent=`Running ${number(cfg.runs)} futures with ${apiBase?'Python':'browser preview'}…`;
  let out;
@@ -103,9 +134,17 @@ export async function setupLab(world){
  showResult(out);$('model-status').textContent=`Computed ${number(out.row_count)} synthetic rows. ${out.engine}. Event mean: ${number(out.event.mean_new_debris)} new debris objects.`;
  if(out.event.type==='abstract_asat'&&out.event.applied){breakupAge=0;world.breakup(Math.round(out.event.mean_new_debris));$('population-layer').value='scenario';$('population-year').value=out.event.year;drawScenario();}
  }catch(error){$('model-status').textContent=`Could not run: ${error.message}. Graphs retain the previous successful result.`;}
- finally{$('run-model').disabled=false;$('breakup').disabled=false;}
+ finally{$('run-model').disabled=false;$('breakup').disabled=false;document.dispatchEvent(new Event('orbit:analysis-complete'));}
  }
- $('run-model').addEventListener('click',run);
+ $('run-model').addEventListener('click',()=>run());
+ document.addEventListener('orbit:deployed',async event=>{
+  while($('run-model').disabled)await new Promise(resolve=>document.addEventListener('orbit:analysis-complete',resolve,{once:true}));
+  $('model-event').value='satellite_launch';$('event-year').value=1;
+  $('deployment-analysis').hidden=false;$('deployment-risk-link').hidden=false;
+  $('deployment-analysis').textContent=`${event.detail.name} deployed. Computing a hypothetical debris-exposure graph using the current model assumptions…`;
+  await run();
+  $('deployment-analysis').textContent=$('model-status').textContent.startsWith('Could not run')?`Deployment succeeded; probability analysis failed: ${$('model-status').textContent}`:`${event.detail.name}: probability graphs updated below. This population proxy does not use the satellite’s altitude or inclination.`;
+ });
  function modelFields(){const model=$('count-model').value;$('dispersion-field').hidden=model!=='negative_binomial';$('cv-field').hidden=model!=='lognormal';}
  $('count-model').addEventListener('change',modelFields);modelFields();
  $('mission-type').addEventListener('change',()=>{const event=$('mission-type').value==='abstract_asat';$('mission-form').hidden=event;$('breakup').hidden=!event;$('mode-note').hidden=!event;});
