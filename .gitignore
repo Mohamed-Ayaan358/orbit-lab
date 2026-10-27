@@ -3,3 +3,7 @@ node_modules/
 _site/
 __pycache__/
 *.log
+.venv/
+results/
+*.pyc
+backend.zip

@@ -1,16 +1,23 @@
 # Orbit Lab
 
-A static, interactive 3D Earth and satellite sandbox. Built with JavaScript and Three.js. Designed to run on GitHub Pages without a backend or build step.
+An interactive 3D Earth, catalog viewer and statistical population sandbox. The public frontend runs on GitHub Pages without a build step; an optional Python backend computes larger ensembles.
+
+**[Open Orbit Lab](https://mohamed-ayaan358.github.io/orbit-lab/)**
 
 ## What you can do
 
 - Explore a photographic Earth with clouds, atmosphere and day/night lighting.
 - Set satellite altitude and inclination; see circular-orbit speed and period.
-- Animate a launch from Cape Canaveral, Kourou, Vandenberg or Sriharikota into a geometrically reachable plane.
+- Animate a launch with vertical climb, pitch-over, stage separation, exhaust, payload deployment and a follow camera from four spaceports.
 - Place satellites directly, including at geostationary altitude.
 - Pause time, change playback speed, rotate the view and show all orbits.
 - Remove satellites, keep missions in browser storage, and import/export JSON.
-- Download the companion Python statistics lab.
+- Load all 19,495 objects in a timestamped CelesTrak snapshot of four selected groups, with SGP4 propagation and a drawing-limit slider.
+- Choose among all 27 saved scenarios and download all 418,500 raw synthetic records.
+- Scale initial populations 1×, 5×, 10× or 100×; change launches, disposal, collision assumptions, simulation horizon and run count.
+- Choose Poisson, Negative Binomial or rounded Lognormal fragment-count models and explore four responsive graphs.
+- Simulate an abstract ASAT aftermath as a generic population breakup event; no interceptor or target selection is modeled.
+- Download the companion Python statistics lab, or connect the [local Python backend](backend/README.md).
 
 ## Run locally
 
@@ -30,7 +37,7 @@ npm test
 
 ## Publish on GitHub Pages
 
-The included `.github/workflows/pages.yml` checks the orbital calculations and deploys the static files on every push to `main`.
+The included `.github/workflows/pages.yml` runs JavaScript and Python tests and deploys the static frontend and data on every push to `main`. Backend source is kept in the repository and is not served by GitHub Pages.
 
 1. Upload this folder as the root of a GitHub repository.
 2. In **Settings → Pages → Build and deployment**, choose **GitHub Actions**.
@@ -42,7 +49,7 @@ All links and asset paths are relative, so the site works at a GitHub project UR
 
 Earth is photographic. Satellite motion is a circular, two-body model with a spherical Earth. Earth rotation and orbital motion share the accelerated simulation clock. Orbits are inertial; geographic markers rotate with Earth. Satellite models and markers are enlarged for visibility. An optional setting increases displayed altitude spacing without changing physical speed or period.
 
-Rocket ascent is an illustrative animation into an orbit plane, not a rocket performance calculation. There is no fuel, thrust, staging, eccentricity, atmospheric drag, precession, solar perturbation or collision prediction. The near-polar preset is not a modeled sun-synchronous orbit. No live objects or launch predictions are shown. The fleet is capped at 30 satellites for this browser demo.
+Rocket ascent and stage separation are illustrative animations, not integrated rocket performance. Custom missions use circular two-body motion; the catalog layer separately uses SGP4 on actual orbital elements. There is no modeled rocket fuel, thrust or intercept physics. The near-polar mission preset is not a modeled sun-synchronous orbit. There is no live tracking feed or actual launch prediction. The custom fleet is capped at 30 detailed satellites; catalog dots are a separate layer supporting the complete selected snapshot.
 
 The geostationary-altitude preset can be placed directly. A direct equatorial launch from the listed non-equatorial spaceports is disabled; transfer maneuvers are outside the model. Exported missions contain orbital settings and simulation time, not operational flight instructions.
 
@@ -50,6 +57,8 @@ The geostationary-altitude preset can be placed directly. A direct equatorial la
 
 `downloads/Space_Object_Data_Science_Lab.zip` contains the earlier executed Python notebook, synthetic scenarios, model source and lessons on Poisson distributions, Normal sample means, summaries and PyMC inference. Those synthetic population scenarios are separate from the circular-orbit visualizer.
 
-This browser sandbox is not itself a big data system. A course project could use it as the visual frontend for scenario ensembles generated across workers, stored in partitioned Parquet, and summarized with Spark. That pipeline and a scientifically validated debris model would be additional work.
+The backend includes a tested local batch-to-Parquet runner and an optional Spark batch extension. A Spark cluster benchmark, production queue, and scientifically validated fragmentation/decay model are not included. The browser visualization alone is not a big data system.
+
+See [backend/README.md](backend/README.md) to run the compute service and [data/README.md](data/README.md) for provenance and coverage. The website works with approximate browser sampling when no Python server is connected; the UI states which engine produced each result.
 
 See [CREDITS.md](CREDITS.md) for assets, reference values and limitations.

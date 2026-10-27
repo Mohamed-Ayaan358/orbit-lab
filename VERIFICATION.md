@@ -1,10 +1,11 @@
 # Verification
 
-Checked locally on 2026-10-27.
+Updated locally on 2026-10-27.
 
-- Seven automated model tests pass: circular-orbit speed/period, geostationary period, radius preservation and inclination bounds, launch-plane/site intersection, direct-launch limits, visual/physical scale separation, and malformed-import rejection.
-- Browser checks passed with no JavaScript errors or failed asset requests: Earth loading, direct placement, full launch/deployment, pause/resume, geostationary preset, refresh persistence, information dialog, satellite removal, JSON export/import, invalid-import handling.
-- Responsive layouts checked at 1440, 390 and 320 pixels; no horizontal overflow.
-- Rendering verified with Chromium WebGL and software graphics. Performance on all physical GPUs or phones has not been measured.
-
-These checks verify software behavior, not the scientific validity of a rocket ascent. The ascent remains illustrative.
+- 11 JavaScript tests pass: circular orbit geometry, period and speed, launch-plane/site intersection, reachable inclination limits, import validation, reproducible random streams, distribution sample means, zero/probability edge cases, quantiles.
+- Five Python tests pass: reproducibility, zero source/sink case, abstract breakup counts, empirical distribution means/variances, API validation and hidden-path rejection.
+- Local batch runner tested with two batches of 50 outcomes, written to Parquet.
+- Browser checks pass with no JavaScript errors or failed asset requests: all 19,495 catalog records load; full-catalog drawing; four charts; 5× scale; Python calculation; browser Lognormal preview; abstract breakup event; cinematic rocket staging and deployment; 390px and 320px layouts without horizontal overflow.
+- Real catalog and synthetic model data are labeled separately. Catalog is a fixed snapshot of selected groups, not a complete inventory or live feed.
+- Rocket ascent, decorative breakup particle motion, and numerical population model are not calibrated physical predictions. Browser large-count distributions use approximations, labeled in the interface.
+- Docker recipe and Spark cluster extension are supplied but were not executed. The Python service was tested locally; no hosted backend was provisioned.

@@ -25,11 +25,19 @@ jobs:
           node-version: '22'
       - name: Verify orbital calculations
         run: npm test
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify simulation backend
+        run: |
+          python -m pip install -r backend/requirements.txt
+          python -m unittest backend.test_engine -v
       - name: Prepare static site
         run: |
           mkdir _site
-          cp index.html app.js orbits.js styles.css CREDITS.md _site/
-          cp -R assets vendor downloads _site/
+          cp index.html app.js orbits.js lab.js random.js catalog-worker.js simulation-worker.js styles.css CREDITS.md _site/
+          cp -R assets vendor downloads data _site/
           touch _site/.nojekyll
       - name: Configure Pages
         uses: actions/configure-pages@v5

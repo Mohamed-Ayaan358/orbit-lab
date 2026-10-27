@@ -20,4 +20,11 @@ Circular two-body orbits use `v = sqrt(mu / r)` and `T = 2*pi*sqrt(r^3 / mu)`.
 
 Launch-site coordinates are rounded geographic reference points, not exact pad coordinates. Plane reachability uses the launch latitude; it omits operational azimuth restrictions, downrange safety, propulsion, plane-change capability and launch windows. A geostationary-altitude, zero-inclination orbit placed directly in this model approximately matches Earth rotation. Direct launches from the offered non-equatorial sites to that plane require maneuvers omitted by this sandbox and are disabled.
 
-Launch paths are kinematic animations, not dynamically integrated rocket trajectories. No satellite catalog, debris catalog, weather feed or collision model is used by this website.
+Launch paths are kinematic animations, not dynamically integrated rocket trajectories. The catalog layer uses the timestamped selected CelesTrak groups described below. The separate population simulator uses an assumed homogeneous-mixing collision coefficient; it is not a geometric collision predictor. There is no live weather feed.
+
+## Catalog data and propagation
+
+- Orbital elements: [CelesTrak](https://celestrak.org/NORAD/elements/), selected public groups retrieved 2026-10-27. Each source URL and epoch range is in `data/catalog/manifest.json`.
+- SGP4 propagation: [satellite.js](https://github.com/shashwatak/satellite-js), version 6.0.1, MIT license, vendored under `vendor/satellite/`.
+- Public groups provide a partial catalog. Object counts are not complete debris counts; orbital elements are not a physical breakup model.
+- Synthetic population ensemble and fragment-count examples: this project's teaching model. Hypothetical ASAT aftermath is an aggregate breakup event only, with no intercept or weapon dynamics. The selected distribution's mean is an assumption.

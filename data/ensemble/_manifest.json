@@ -1,0 +1,117 @@
+{
+  "rows": 418500,
+  "scenarios": 27,
+  "runs_per_scenario": 500,
+  "snapshots_per_run": 31,
+  "kind": "synthetic teaching population model",
+  "files": [
+    {
+      "scenario": "120_0.6_0.0",
+      "file": "data/ensemble/scenario_id=120_0.6_0.0/part-000.parquet"
+    },
+    {
+      "scenario": "120_0.6_0.4",
+      "file": "data/ensemble/scenario_id=120_0.6_0.4/part-000.parquet"
+    },
+    {
+      "scenario": "120_0.6_1.2",
+      "file": "data/ensemble/scenario_id=120_0.6_1.2/part-000.parquet"
+    },
+    {
+      "scenario": "120_0.99_0.0",
+      "file": "data/ensemble/scenario_id=120_0.99_0.0/part-000.parquet"
+    },
+    {
+      "scenario": "120_0.99_0.4",
+      "file": "data/ensemble/scenario_id=120_0.99_0.4/part-000.parquet"
+    },
+    {
+      "scenario": "120_0.99_1.2",
+      "file": "data/ensemble/scenario_id=120_0.99_1.2/part-000.parquet"
+    },
+    {
+      "scenario": "120_0.9_0.0",
+      "file": "data/ensemble/scenario_id=120_0.9_0.0/part-000.parquet"
+    },
+    {
+      "scenario": "120_0.9_0.4",
+      "file": "data/ensemble/scenario_id=120_0.9_0.4/part-000.parquet"
+    },
+    {
+      "scenario": "120_0.9_1.2",
+      "file": "data/ensemble/scenario_id=120_0.9_1.2/part-000.parquet"
+    },
+    {
+      "scenario": "240_0.6_0.0",
+      "file": "data/ensemble/scenario_id=240_0.6_0.0/part-000.parquet"
+    },
+    {
+      "scenario": "240_0.6_0.4",
+      "file": "data/ensemble/scenario_id=240_0.6_0.4/part-000.parquet"
+    },
+    {
+      "scenario": "240_0.6_1.2",
+      "file": "data/ensemble/scenario_id=240_0.6_1.2/part-000.parquet"
+    },
+    {
+      "scenario": "240_0.99_0.0",
+      "file": "data/ensemble/scenario_id=240_0.99_0.0/part-000.parquet"
+    },
+    {
+      "scenario": "240_0.99_0.4",
+      "file": "data/ensemble/scenario_id=240_0.99_0.4/part-000.parquet"
+    },
+    {
+      "scenario": "240_0.99_1.2",
+      "file": "data/ensemble/scenario_id=240_0.99_1.2/part-000.parquet"
+    },
+    {
+      "scenario": "240_0.9_0.0",
+      "file": "data/ensemble/scenario_id=240_0.9_0.0/part-000.parquet"
+    },
+    {
+      "scenario": "240_0.9_0.4",
+      "file": "data/ensemble/scenario_id=240_0.9_0.4/part-000.parquet"
+    },
+    {
+      "scenario": "240_0.9_1.2",
+      "file": "data/ensemble/scenario_id=240_0.9_1.2/part-000.parquet"
+    },
+    {
+      "scenario": "40_0.6_0.0",
+      "file": "data/ensemble/scenario_id=40_0.6_0.0/part-000.parquet"
+    },
+    {
+      "scenario": "40_0.6_0.4",
+      "file": "data/ensemble/scenario_id=40_0.6_0.4/part-000.parquet"
+    },
+    {
+      "scenario": "40_0.6_1.2",
+      "file": "data/ensemble/scenario_id=40_0.6_1.2/part-000.parquet"
+    },
+    {
+      "scenario": "40_0.99_0.0",
+      "file": "data/ensemble/scenario_id=40_0.99_0.0/part-000.parquet"
+    },
+    {
+      "scenario": "40_0.99_0.4",
+      "file": "data/ensemble/scenario_id=40_0.99_0.4/part-000.parquet"
+    },
+    {
+      "scenario": "40_0.99_1.2",
+      "file": "data/ensemble/scenario_id=40_0.99_1.2/part-000.parquet"
+    },
+    {
+      "scenario": "40_0.9_0.0",
+      "file": "data/ensemble/scenario_id=40_0.9_0.0/part-000.parquet"
+    },
+    {
+      "scenario": "40_0.9_0.4",
+      "file": "data/ensemble/scenario_id=40_0.9_0.4/part-000.parquet"
+    },
+    {
+      "scenario": "40_0.9_1.2",
+      "file": "data/ensemble/scenario_id=40_0.9_1.2/part-000.parquet"
+    }
+  ]
+}
