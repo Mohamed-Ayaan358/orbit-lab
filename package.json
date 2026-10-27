@@ -1,0 +1,11 @@
+{
+  "name": "orbit-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A static 3D Earth and satellite sandbox for GitHub Pages",
+  "scripts": {
+    "test": "node --test tests/orbits.test.js",
+    "start": "python3 -m http.server 8080 --bind 127.0.0.1"
+  }
+}
