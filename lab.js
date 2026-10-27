@@ -62,7 +62,7 @@ export async function setupLab(world){
  }
  if(result.counterfactual){
  const base=result.counterfactual;
- plot('chart-feedback',t.map((r,i)=>({x:r.year,y:r.median,theory:base.trajectory[i].median,low:r.low,high:r.high})),{type:'line',band:true,xLabel:'Scenario year',yLabel:'Debris objects',title:'Generic breakup scenario versus no-extra-breakup baseline',color:'#df9bff',reference:result.event.year});
+ plot('chart-feedback',t.map((r,i)=>({x:r.year,y:r.median,theory:base.trajectory[i].median,low:r.low,high:r.high})),{type:'line',band:true,xLabel:'Scenario year',yLabel:'Debris objects',title:'Generic breakup scenario versus no-extra-breakup baseline',color:'#df9bff',reference:result.event.applied?result.event.year:null});
  $('feedback-caption').textContent='Purple: extra-breakup median and middle 95% of runs. Orange: no-extra-breakup median. Dashed line: initial event. Later satellite–debris collisions can add fragments; removal can reduce them.';
  const signed=n=>(n>=0?'+':'')+number(n);
  $('feedback-summary').textContent=`Initial extra fragments (mean): ${number(result.event.mean_new_debris)}. Final mean difference: ${signed(base.mean_final_delta)} debris. Later collisions difference: ${signed(base.secondary_collisions_delta)}. Later fragments difference: ${signed(base.secondary_fragments_delta)}. These are Monte Carlo differences between conditional scenarios, not real-world causal estimates.`;

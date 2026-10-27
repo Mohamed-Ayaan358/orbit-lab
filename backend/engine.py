@@ -47,9 +47,12 @@ def run_scenario(cfg, include_runs=False, comparison=True):
             if cfg['event_type']=='satellite_launch':S+=1
             else:
                 # Aggregate breakup consequence only. No target, missile, or orbit is calculated.
-                event_counts=fragment_draw(rng,cfg['distribution'],cfg['fragment_mean'],r,cfg['dispersion'],cfg['cv'])*(S>0)
-                S-= (S>0).astype(np.int64);D+=event_counts
-                fragments+=event_counts
+                available=S>0
+                event_applied=bool(np.any(available))
+                if event_applied:
+                    event_counts=fragment_draw(rng,cfg['distribution'],cfg['fragment_mean'],r,cfg['dispersion'],cfg['cv'])*available
+                    S-=available.astype(np.int64);D+=event_counts
+                    fragments+=event_counts
         if np.any(D+S>LIMIT):raise ValueError('Population exceeded the 100-million-object teaching-model limit. Reduce scale or fragmentation assumptions.')
         history.append(D.copy());sat_history.append(S.copy());new.append(fragments.copy());collisions.append(collision.copy())
     H=np.array(history);SH=np.array(sat_history);final=H[-1]

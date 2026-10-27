@@ -19,9 +19,8 @@ export function simulateScenario(cfg,comparison=true){
    let f=fragmentCount(rng,cfg.distribution,cfg.fragment_mean,cfg.dispersion,cfg.cv,c);
    s-=c;d+=f-c;
    if(year===cfg.event_year&&cfg.event_type!=='none'){
-    eventApplied=true;
-    if(cfg.event_type==='satellite_launch')s++;
-    else if(s>0){eventCounts[i]=fragmentCount(rng,cfg.distribution,cfg.fragment_mean,cfg.dispersion,cfg.cv);s--;d+=eventCounts[i];f+=eventCounts[i];}
+    if(cfg.event_type==='satellite_launch'){eventApplied=true;s++;}
+    else if(s>0){eventApplied=true;eventCounts[i]=fragmentCount(rng,cfg.distribution,cfg.fragment_mean,cfg.dispersion,cfg.cv);s--;d+=eventCounts[i];f+=eventCounts[i];}
    }
    if(s+d>1e8)throw new Error('Population exceeded the 100-million-object teaching-model limit. Reduce scale or fragmentation.');
    S[i]=s;D[i]=d;totalFragments+=f;totalCollisions+=c;

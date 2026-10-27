@@ -32,6 +32,12 @@ class SimulationTests(unittest.TestCase):
   self.assertEqual(out['counterfactual']['trajectory'],base['trajectory'])
   self.assertEqual(out['counterfactual']['secondary_collisions_delta'],0)
   self.assertAlmostEqual(out['counterfactual']['secondary_fragments_delta'],0)
+ def test_unavailable_breakup_has_no_spurious_feedback(self):
+  cfg=Scenario(runs=100,years=10,event_year=2,initial_satellites=0,annual_launches=0).model_dump()
+  base=run_scenario(cfg);event=run_scenario(cfg|{'event_type':'abstract_asat'})
+  self.assertEqual(event['event']['mean_new_debris'],0)
+  self.assertEqual(event['trajectory'],base['trajectory'])
+  self.assertEqual(event['counterfactual']['mean_final_delta'],0)
  def test_api_validation_and_hidden_paths(self):
   c=TestClient(app)
   self.assertEqual(c.get('/api/health').status_code,200)
