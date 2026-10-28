@@ -68,8 +68,12 @@ See [CREDITS.md](CREDITS.md) for assets, reference values and limitations.
 
 ## Readability and post-deployment analysis
 
-Hover, focus with the keyboard, or tap the ⓘ controls to explain terms such as active catalog, catalog debris, SGP4, inclination and model coefficients. Catalog satellites are larger cyan diamonds; debris is smaller orange dots; your missions are enlarged colored models. **Population → Satellite marker size** adjusts visibility without changing the model.
+Hover, focus with the keyboard, or tap the ⓘ controls to explain terms such as active catalog, catalog debris, SGP4, inclination and model coefficients. Catalog satellites are larger cyan diamonds; debris is smaller orange dots; your missions are enlarged colored models. **Objects → Satellite dot size** adjusts visibility without changing the model.
 
 Deploying or placing a custom satellite automatically runs the current scenario assumptions and updates the hypothetical debris-collision probability graph below the globe. The deployment message links to that graph. The probability is a population-based teaching proxy, not a conjunction assessment or an actual prediction for that orbit.
 
 For abstract breakup aftermath, the additional comparison graph shows with-extra-breakup and no-extra-breakup futures. The summary separates initial fragments from differences in later collisions/fragments. The model can show feedback or decay; it does not guarantee runaway growth. See the backend documentation for the formula, counterfactual definition and limitations.
+
+## Plain-language guides
+
+Graph titles ask a question, reading guides explain the axes and colors, and ⓘ controls define the main terms. Advanced distribution settings stay in an optional disclosure. Cleanup success is entered as a percentage; the model still receives a fraction. Breakup comparisons use a solid purple line and dashed orange baseline, with a separate difference graph under “See small differences & more numbers.” The summary describes the observed simulation difference without treating it as a measured causal effect.

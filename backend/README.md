@@ -19,7 +19,7 @@ Open **http://127.0.0.1:8000**. This serves the frontend and API together; the w
 
 API documentation: **http://127.0.0.1:8000/docs**.
 
-Alternatively, on the GitHub site open **Models → Connect Python backend**, enter the base URL and connect. A public frontend needs an accessible backend with HTTPS; browsers may require permission for a local-network service. The hosted preview is https://orbit-lab.147.93.180.68.sslip.io . Connecting is temporary and API credentials are not stored in browser storage.
+Alternatively, on the GitHub site open **What if? → Choose where calculations run**, enter the base URL and connect. A public frontend needs an accessible backend with HTTPS; browsers may require permission for a local-network service. The hosted preview is https://orbit-lab.147.93.180.68.sslip.io . Connecting is temporary and API credentials are not stored in browser storage.
 
 ## Example request
 
