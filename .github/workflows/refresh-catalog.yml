@@ -1,0 +1,37 @@
+name: Refresh public orbit snapshot
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: catalog-refresh
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch a complete validated generation
+        run: python scripts/refresh_catalog.py
+      - name: Produce catalog quality report
+        run: |
+          python -m pip install numpy pandas pyarrow
+          python -m backend.catalog_pipeline --output /tmp/orbit-lake > data/science/catalog-quality.json
+      - name: Commit snapshot and trigger site publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name 'orbit-lab-data-bot'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/catalog data/science/catalog-quality.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Refresh validated public orbit snapshot'
+            git push
+            gh workflow run pages.yml
+          fi

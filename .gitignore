@@ -7,3 +7,8 @@ __pycache__/
 results/
 *.pyc
 backend.zip
+.state/
+.science/
+*.sqlite*
+.env
+benchmark-results/

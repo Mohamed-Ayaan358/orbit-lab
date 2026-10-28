@@ -1,0 +1,53 @@
+# Uses the existing Coolify Traefik proxy; no host ports are replaced.
+services:
+  api:
+    image: python:3.12-slim
+    container_name: orbit-lab-api
+    user: '10001:10001'
+    working_dir: /app
+    restart: unless-stopped
+    command: ['sh','/app/deploy/run-container.sh']
+    env_file: .env
+    environment:
+      ORBIT_STATE_DIR: /state
+      ORBIT_CATALOG_SYNC: '1'
+      ORBIT_MAX_RUNS: '2000'
+      ORBIT_MAX_RUN_YEARS: '100000'
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      NUMEXPR_NUM_THREADS: '1'
+      PYTHONUNBUFFERED: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PIP_NO_CACHE_DIR: '1'
+    volumes:
+      - ../:/app:ro
+      - ../.state:/state
+    mem_limit: 256m
+    memswap_limit: 256m
+    cpus: 0.25
+    pids_limit: 64
+    security_opt: ['no-new-privileges:true']
+    cap_drop: ['ALL']
+    networks: ['coolify']
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: coolify
+      traefik.http.routers.orbit-lab-http.rule: Host(`${ORBIT_API_DOMAIN}`)
+      traefik.http.routers.orbit-lab-http.entrypoints: http
+      traefik.http.routers.orbit-lab-http.middlewares: orbit-lab-https
+      traefik.http.middlewares.orbit-lab-https.redirectscheme.scheme: https
+      traefik.http.routers.orbit-lab-https.rule: Host(`${ORBIT_API_DOMAIN}`)
+      traefik.http.routers.orbit-lab-https.entrypoints: https
+      traefik.http.routers.orbit-lab-https.tls: 'true'
+      traefik.http.routers.orbit-lab-https.middlewares: orbit-lab-body
+      traefik.http.middlewares.orbit-lab-body.buffering.maxRequestBodyBytes: '16384'
+      traefik.http.middlewares.orbit-lab-body.buffering.memRequestBodyBytes: '16384'
+      traefik.http.routers.orbit-lab-https.tls.certresolver: letsencrypt
+      traefik.http.services.orbit-lab.loadbalancer.server.port: '8000'
+    logging:
+      driver: json-file
+      options: {max-size: '5m', max-file: '2'}
+networks:
+  coolify:
+    external: true

@@ -1,0 +1,4 @@
+-r requirements.txt
+pyspark==4.0.1
+sgp4==2.27
+sympy>=1.11,<2

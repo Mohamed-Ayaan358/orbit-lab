@@ -19,7 +19,7 @@ Open **http://127.0.0.1:8000**. This serves the frontend and API together; the w
 
 API documentation: **http://127.0.0.1:8000/docs**.
 
-Alternatively, on the GitHub site open **Models → Connect Python backend**, enter the base URL and connect. A public frontend needs an accessible backend with HTTPS; browsers may require permission for a local-network service. No hosted Python server has been provisioned by this project. Connecting is temporary and API credentials are not stored in browser storage.
+Alternatively, on the GitHub site open **Models → Connect Python backend**, enter the base URL and connect. A public frontend needs an accessible backend with HTTPS; browsers may require permission for a local-network service. The hosted preview is https://orbit-lab.147.93.180.68.sslip.io . Connecting is temporary and API credentials are not stored in browser storage.
 
 ## Example request
 
@@ -43,11 +43,11 @@ Fragment count choices:
 - **Negative Binomial:** mean `m`, variance `m + m² / dispersion` (Gamma–Poisson mixture).
 - **Rounded Lognormal:** continuous mean `m`, variance `(m * cv)²`, then rounded to an integer. Rounding slightly changes the moments. Sums across multiple collisions are approximated by a moment-matched Lognormal; this is not an exact sum distribution.
 
-None is a calibrated physical fragmentation model. The inputs do not specify object mass or fragment-size cutoff, so the output is not a real estimate of trackable debris from an actual event. The 3D burst is decorative and its particle velocities are not model outputs.
+None is a calibrated physical fragmentation model. The inputs do not specify object mass or fragment-size cutoff, so the output is not a real estimate of trackable debris from an actual event. The Science fragment layer propagates assumed velocity offsets under two-body gravity. Its sample size and velocities are not outputs of a calibrated breakup model.
 
 ## Limits and larger jobs
 
-An API request supports at most 20,000 runs, 100 years and one million run-year transitions. Initial counts are bounded at ten million per class. A run exceeding 100 million objects is stopped with an explicit error. Requests execute in a worker thread; this is a local prototype, not a distributed queue.
+An API request supports at most 20,000 runs, 100 years and one million run-year transitions. Initial counts are bounded at ten million per class. A run exceeding 100 million objects is stopped with an explicit error. A single-process SQLite queue persists private jobs, while a shared compute lock serializes all calculations. This is not a multi-host distributed queue. The hosted preview has stricter bounds described below.
 
 For larger experiments, `backend/batch.py` writes seeded batches of final-run outcomes to partitioned Parquet. `backend/spark_batch.py` distributes the same batches across Spark workers. Workers need the same Python dependencies and access to shared storage. These batch jobs intentionally do not pass large results through the website.
 
@@ -57,7 +57,7 @@ python -m backend.batch --runs 10000 --batch-size 1000 --output results/local
 spark-submit --py-files backend.zip backend/spark_batch.py --runs 1000000 --output s3a://YOUR-BUCKET/orbit-results
 ```
 
-Create `backend.zip` from the `backend/` package before submitting. Spark execution is a provided extension; a real cluster benchmark is not included or claimed.
+Create `backend.zip` from the `backend/` package before submitting. The local Spark path has been executed and benchmarked; see SCIENCE.md. A multi-host cluster benchmark is not included or claimed.
 
 ## Hosting
 
@@ -68,9 +68,20 @@ docker build -f backend/Dockerfile -t orbit-lab-api .
 docker run --rm -p 8000:8000 orbit-lab-api
 ```
 
-Deploy that image on a Python/container hosting service of your choice with an HTTPS endpoint. Set `ORBIT_ALLOWED_ORIGINS` to a comma-separated list of exact frontend origins. The default allows the project’s GitHub Pages origin and local development. CORS is not authentication. Before exposing the CPU-intensive API publicly, put authentication, rate limits, request limits and a job queue in front of it. This repository does not create a paid hosting account or a public compute endpoint.
+The current VPS deployment uses `deploy/compose.coolify.yml` and the existing Traefik proxy. It installs binary runtime dependencies inside the capped container, avoiding a build on the shared server. Spark, pandas, PyArrow and pySSEM are not installed there.
 
-Run checks with `python -m unittest backend.test_engine -v`.
+- Hard memory: **256 MiB**, no additional swap; CPU: **0.25**; one API process and one compute operation at a time.
+- Public `POST /api/preview`: at most 500 runs, 30 years, shared six-per-minute rate limit across preview endpoints.
+- Private `POST /api/jobs`: returns an ID. Poll `GET /api/jobs/{id}` for the result. Set `Authorization: Bearer TOKEN`. Hosted limit: 2,000 runs / 100,000 run-years per arm. The latest 100 completed jobs are retained as new jobs arrive.
+- Private synchronous `/api/simulate`, `/api/screen`, `/api/encounter-probability` also require the configured token. Public bounded science routes are `/api/preview/screen` and `/api/preview/encounter-probability`.
+- `ORBIT_API_TOKEN` stays in the VPS `deploy/.env` file, readable only by root. Never commit it or embed it in frontend code. The website's optional token field is kept only in the current page, not browser storage. To retrieve your token yourself, use your VPS console to inspect `/opt/orbit-lab/deploy/.env`; do not share it publicly.
+- No host ports are published. Only the new hostname is routed through the existing proxy. Existing services are not restarted.
+- Allowed origins are exact comma-separated frontend origins in `ORBIT_ALLOWED_ORIGINS`. CORS is not authentication.
+- On token-free local development, private routes are available without authentication. Do not expose that configuration as an unrestricted public service.
+
+Run checks with `python -m unittest discover -s backend -t . -p 'test_*.py' -v` and `npm test`.
+
+Full methods, executed reference results and pending calibration work: [SCIENCE.md](../SCIENCE.md).
 
 ## Deployment probability proxy and breakup feedback
 

@@ -1,6 +1,6 @@
 # Orbit Lab
 
-An interactive 3D Earth, catalog viewer and statistical population sandbox. The public frontend runs on GitHub Pages without a build step; an optional Python backend computes larger ensembles.
+An interactive 3D Earth, catalog viewer and statistical population sandbox. The public frontend runs on GitHub Pages without a build step; a lightweight hosted Python backend computes bounded ensembles.
 
 **[Open Orbit Lab](https://mohamed-ayaan358.github.io/orbit-lab/)**
 
@@ -12,12 +12,15 @@ An interactive 3D Earth, catalog viewer and statistical population sandbox. The 
 - Place satellites directly, including at geostationary altitude.
 - Pause time, change playback speed, rotate the view and show all orbits.
 - Remove satellites, keep missions in browser storage, and import/export JSON.
-- Load all 19,495 objects in a timestamped CelesTrak snapshot of four selected groups, with SGP4 propagation and a drawing-limit slider.
+- Load all 19,497 objects in a timestamped CelesTrak snapshot of four selected groups, with SGP4 propagation and a drawing-limit slider.
 - Choose among all 27 saved scenarios and download all 418,500 raw synthetic records.
 - Scale initial populations 1×, 5×, 10× or 100×; change launches, disposal, collision assumptions, simulation horizon and run count.
-- Choose Poisson, Negative Binomial or rounded Lognormal fragment-count models and explore four responsive graphs.
+- Choose Poisson, Negative Binomial or rounded Lognormal fragment-count models and explore responsive distribution, exposure and feedback graphs.
 - Simulate an abstract ASAT aftermath as a generic population breakup event; no interceptor or target selection is modeled.
-- Download the companion Python statistics lab, or connect the [local Python backend](backend/README.md).
+- Propagate a sample of fragments with two-body numerical integration and inspect the altitude envelope.
+- Sample catalog near approaches and calculate a separate Gaussian encounter example from assumed inputs.
+- Inspect an executed MOCAT-pySSEM synthetic reference and local Spark benchmark.
+- Use the hosted Python preview, private persistent jobs, or the [local backend](backend/README.md).
 
 ## Run locally
 
@@ -57,7 +60,7 @@ The geostationary-altitude preset can be placed directly. A direct equatorial la
 
 `downloads/Space_Object_Data_Science_Lab.zip` contains the earlier executed Python notebook, synthetic scenarios, model source and lessons on Poisson distributions, Normal sample means, summaries and PyMC inference. Those synthetic population scenarios are separate from the circular-orbit visualizer.
 
-The backend includes a tested local batch-to-Parquet runner and an optional Spark batch extension. A Spark cluster benchmark, production queue, and scientifically validated fragmentation/decay model are not included. The browser visualization alone is not a big data system.
+The backend includes checksum-verified catalog-to-Parquet ingestion, a batch ensemble runner and an executed Spark path with local one/two-worker timing evidence. The hosted API uses a single-process persistent queue under a 256 MiB memory cap. Spark and pySSEM stay off the VPS. Multi-host performance and empirical fragmentation/decay calibration remain unverified. See [SCIENCE.md](SCIENCE.md) for evidence and reproducibility. The browser visualization alone is not a big data system.
 
 See [backend/README.md](backend/README.md) to run the compute service and [data/README.md](data/README.md) for provenance and coverage. The website works with approximate browser sampling when no Python server is connected; the UI states which engine produced each result.
 

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {setupScience} from './science.js';
 import {setupHelp} from './help.js';
 import {randomStream,poisson,histogram} from './random.js';
 import {orbitPosition,displayRadius,circularOrbit,TAU} from './orbits.js';
@@ -6,7 +7,7 @@ const $=id=>document.getElementById(id),number=x=>Number(x).toLocaleString(undef
 const NS='http://www.w3.org/2000/svg';
 function element(tag,attributes={},text){const node=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attributes))node.setAttribute(k,v);if(text!==undefined)node.textContent=text;return node;}
 const compact=x=>Math.abs(x)>=1000?Intl.NumberFormat('en',{notation:'compact',maximumFractionDigits:1}).format(x):Number(x.toPrecision(3)).toString();
-function plot(id,rows,{type='bars',xLabel,yLabel,title,band=false,color='#78b8ff',reference=null,yCap=null,valueLabel='median'}={}){
+function plot(id,rows,{type='bars',xLabel,yLabel,title,band=false,color='#78b8ff',reference=null,yCap=null,valueLabel='median',theoryLabel='no-extra-breakup'}={}){
  const host=$(id),width=Math.max(270,host.getBoundingClientRect().width),height=255,m={l:66,r:16,t:16,b:54};host.replaceChildren();
  const svg=element('svg',{viewBox:`0 0 ${width} ${height}`,role:'img','aria-label':title});svg.append(element('title',{},title));host.append(svg);
  let xmin=Math.min(...rows.map(r=>r.x0??r.x)),xmax=Math.max(...rows.map(r=>r.x1??r.x)),ymax=Math.max(...rows.flatMap(r=>[r.y??r.count??0,r.high??0,r.theory??0]));
@@ -26,10 +27,11 @@ function plot(id,rows,{type='bars',xLabel,yLabel,title,band=false,color='#78b8ff
  if(reference!==null&&reference>=xmin&&reference<=xmax)marks.append(element('line',{x1:x(reference),x2:x(reference),y1:m.t,y2:height-m.b,stroke:'#ffbc7a','stroke-dasharray':'4 4'}));
  const tip=document.createElement('div');tip.className='chart-tip';tip.textContent='Move over the graph to inspect values.';host.append(tip);
  const guide=element('line',{y1:m.t,y2:height-m.b,stroke:'#b8f6d4',visibility:'hidden'});marks.append(guide);
- svg.addEventListener('pointermove',event=>{const rect=svg.getBoundingClientRect(),px=(event.clientX-rect.left)/rect.width*width,value=xmin+Math.max(0,Math.min(1,(px-m.l)/(width-m.l-m.r)))*(xmax-xmin);const row=rows.reduce((best,r)=>Math.abs((r.x??(r.x0+r.x1)/2)-value)<Math.abs((best.x??(best.x0+best.x1)/2)-value)?r:best,rows[0]);guide.setAttribute('x1',Math.max(m.l,Math.min(width-m.r,px)));guide.setAttribute('x2',Math.max(m.l,Math.min(width-m.r,px)));guide.setAttribute('visibility','visible');tip.textContent=type==='bars'?`${xLabel}: ${number(row.x0)}–${number(row.x1)} · ${yLabel}: ${number(row.count??row.y)}`:`${xLabel}: ${number(row.x)} · ${valueLabel}: ${number(row.y)}${band?` · interval: ${number(row.low)}–${number(row.high)}`:''}${row.theory!==undefined?` · no-extra-breakup: ${number(row.theory)}`:''}`;});
+ svg.addEventListener('pointermove',event=>{const rect=svg.getBoundingClientRect(),px=(event.clientX-rect.left)/rect.width*width,value=xmin+Math.max(0,Math.min(1,(px-m.l)/(width-m.l-m.r)))*(xmax-xmin);const row=rows.reduce((best,r)=>Math.abs((r.x??(r.x0+r.x1)/2)-value)<Math.abs((best.x??(best.x0+best.x1)/2)-value)?r:best,rows[0]);guide.setAttribute('x1',Math.max(m.l,Math.min(width-m.r,px)));guide.setAttribute('x2',Math.max(m.l,Math.min(width-m.r,px)));guide.setAttribute('visibility','visible');tip.textContent=type==='bars'?`${xLabel}: ${number(row.x0)}–${number(row.x1)} · ${yLabel}: ${number(row.count??row.y)}`:`${xLabel}: ${number(row.x)} · ${valueLabel}: ${number(row.y)}${band?` · interval: ${number(row.low)}–${number(row.high)}`:''}${row.theory!==undefined?` · ${theoryLabel}: ${number(row.theory)}`:''}`;});
 }
 export async function setupLab(world){
  let result=null,presets={},teaching=null,catalogInfo=null,apiBase='',simWorker=null,catalogWorker=null,catalogPoints=null,catalogPending=false,catalogLast=0,catalogTargets=null,catalogStart=null,catalogBlend=0,scenarioPoints=null,breakupAge=999;
+ const science=setupScience(world,{plot,getCatalog:()=>catalogInfo,apiRequest:async(path,body)=>{if(!apiBase)throw new Error('Connect Python in Models first.');return requestAPI('/api/'+($('backend-token').value?'':'preview/')+path.replace(/^\//,''),body);}});
  setupHelp();
  const catalogGeometry=new THREE.BufferGeometry();
  const catalogMaterial=new THREE.ShaderMaterial({transparent:true,depthWrite:false,
@@ -43,7 +45,7 @@ export async function setupLab(world){
  }`});
  catalogPoints=new THREE.Points(catalogGeometry,catalogMaterial);world.scene.add(catalogPoints);
  $('marker-size').addEventListener('input',()=>{catalogMaterial.uniforms.markerSize.value=Number($('marker-size').value);$('marker-size-label').value=$('marker-size').value+' px';});
- function tab(name){document.querySelectorAll('[data-panel]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.panel===name)));for(const id of ['missions','population','models'])$('panel-'+id).hidden=id!==name;}
+ function tab(name){document.querySelectorAll('[data-panel]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.panel===name)));for(const id of ['missions','population','models','science'])$('panel-'+id).hidden=id!==name;}
  document.querySelectorAll('[data-panel]').forEach(button=>button.addEventListener('click',()=>tab(button.dataset.panel)));
  function redraw(){if(!result||!teaching)return;
  const t=result.trajectory;
@@ -52,7 +54,7 @@ export async function setupLab(world){
  plot('chart-fragments',result.fragment_histogram,{xLabel:'New fragments / event',yLabel:'Simulated events',title:'Fragment counts from 2000 hypothetical breakup draws',color:'#ffbc7a'});
  const rate=result.config.annual_launches/12,rand=randomStream(20261027),means=Array.from({length:2000},()=>Array.from({length:12},()=>poisson(rand,rate)).reduce((a,b)=>a+b,0)/12),se=Math.sqrt(rate/12);
  const rows=histogram(means,24).map(r=>{const center=(r.x0+r.x1)/2;return {...r,count:undefined,y:r.count/(2000*(r.x1-r.x0)),theory:se>0?Math.exp(-.5*((center-rate)/se)**2)/(se*Math.sqrt(2*Math.PI)):0,x:center};});
- plot('chart-normal',rows,{xLabel:'Mean launches / month',yLabel:'Density',title:'Normal approximation for 2000 independent twelve-month sample means'});
+ plot('chart-normal',rows,{xLabel:'Mean launches / month',yLabel:'Density',title:'Normal approximation for 2000 independent twelve-month sample means',theoryLabel:'Normal density'});
  const proxy=result.collision_proxy;
  if(proxy){
  const baselineRisk=result.counterfactual?.collision_proxy?.trajectory;
@@ -126,13 +128,16 @@ export async function setupLab(world){
  try{
  const cfg=config();$('run-model').disabled=true;$('breakup').disabled=true;$('model-status').textContent=`Running ${number(cfg.runs)} futures with ${apiBase?'Python':'browser preview'}…`;
  let out;
- if(apiBase){const response=await fetch(apiBase+'/api/simulate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg),signal:AbortSignal.timeout(120000)});const data=await response.json();if(!response.ok)throw new Error(typeof data.detail==='string'?data.detail:JSON.stringify(data.detail));out=data;}
+ if(apiBase){
+ if($('backend-token').value){let job=await requestAPI('/api/jobs',cfg);const deadline=Date.now()+120000;while(['queued','running'].includes(job.status)){if(Date.now()>deadline)throw new Error('Job is still running. Retry later; the server retains the job result.');await new Promise(resolve=>setTimeout(resolve,700));job=await requestAPI('/api/jobs/'+job.id);$('model-status').textContent=`Python job ${job.status}…`;}if(job.status!=='completed')throw new Error(job.error||'Job failed');out=job.result;}
+ else out=await requestAPI('/api/preview',cfg);
+ }
  else{
   if(simWorker)simWorker.terminate();simWorker=new Worker(new URL('./simulation-worker.js',import.meta.url),{type:'module'});
   out=await new Promise((resolve,reject)=>{simWorker.onmessage=({data})=>data.error?reject(new Error(data.error)):resolve(data);simWorker.onerror=e=>reject(new Error(e.message||'Simulation worker failed'));simWorker.postMessage(cfg);});simWorker.terminate();simWorker=null;
  }
  showResult(out);$('model-status').textContent=`Computed ${number(out.row_count)} synthetic rows. ${out.engine}. Event mean: ${number(out.event.mean_new_debris)} new debris objects.`;
- if(out.event.type==='abstract_asat'&&out.event.applied){breakupAge=0;world.breakup(Math.round(out.event.mean_new_debris));$('population-layer').value='scenario';$('population-year').value=out.event.year;drawScenario();}
+ if(out.event.type==='abstract_asat'&&out.event.applied){breakupAge=0;science.fragments(Math.min(500,Math.round(out.event.mean_new_debris))); $('population-layer').value='scenario';$('population-year').value=out.event.year;drawScenario();}
  }catch(error){$('model-status').textContent=`Could not run: ${error.message}. Graphs retain the previous successful result.`;}
  finally{$('run-model').disabled=false;$('breakup').disabled=false;document.dispatchEvent(new Event('orbit:analysis-complete'));}
  }
@@ -149,9 +154,13 @@ export async function setupLab(world){
  $('count-model').addEventListener('change',modelFields);modelFields();
  $('mission-type').addEventListener('change',()=>{const event=$('mission-type').value==='abstract_asat';$('mission-form').hidden=event;$('breakup').hidden=!event;$('mode-note').hidden=!event;});
  $('breakup').addEventListener('click',()=>{$('model-event').value='abstract_asat';tab('models');run();});
+ async function requestAPI(path,body){
+ const headers={'Content-Type':'application/json'};if($('backend-token').value)headers.Authorization='Bearer '+$('backend-token').value;
+ const response=await fetch(apiBase+path,{method:body?'POST':'GET',headers,body:body?JSON.stringify(body):undefined,signal:AbortSignal.timeout(120000)});const data=await response.json();if(!response.ok)throw new Error(typeof data.detail==='string'?data.detail:JSON.stringify(data.detail));return data;
+ }
  async function connect(base){
  const parsed=new URL(base);if(!['http:','https:'].includes(parsed.protocol)||parsed.username||parsed.password)throw new Error('Use an HTTP(S) base URL without credentials.');
- const url=parsed.href.replace(/\/$/,'');const response=await fetch(url+'/api/health',{signal:AbortSignal.timeout(10000)});if(!response.ok)throw new Error(`Health check returned ${response.status}`);const health=await response.json();if(health.status!=='ok')throw new Error('This is not an Orbit Lab API.');apiBase=url;$('backend-status').textContent=`Connected to ${url} · ${health.engine}. Scenario runs now use Python.`;
+ const url=parsed.href.replace(/\/$/,'');const response=await fetch(url+'/api/health',{signal:AbortSignal.timeout(10000)});if(!response.ok)throw new Error(`Health check returned ${response.status}`);const health=await response.json();if(health.status!=='ok')throw new Error('This is not an Orbit Lab API.');apiBase=url;$('backend-status').textContent=`Connected to ${url} · ${health.engine}. Scenario runs now use Python. ${$('backend-token').value?'Private queued jobs enabled.':'Public preview: 500 runs / 30 years; shared rate limit.'}`;
  }
  $('backend-connect').addEventListener('click',async()=>{try{await connect($('backend-url').value);}catch(e){apiBase='';$('backend-status').textContent=`Connection failed: ${e.message}. Browser preview remains available.`;}});
  $('backend-disconnect').addEventListener('click',()=>{apiBase='';$('backend-status').textContent='Using browser worker preview (large-count sampling is approximate).';});
@@ -163,8 +172,10 @@ export async function setupLab(world){
  $('saved-scenario').addEventListener('change',()=>{const out=presets[$('saved-scenario').value],cfg=out.config;$('model-launches').value=cfg.annual_launches;$('model-disposal').value=cfg.disposal;$('model-collision').value=cfg.collision_coefficient;$('count-model').value='poisson';$('fragment-mean').value=60;$('model-years').value=30;$('model-runs').value=500;$('model-seed').value=cfg.seed;$('model-event').value='none';$('baseline').value='teaching';$('population-scale').value='1';modelFields();showResult(out);$('model-status').textContent='Loaded saved Python scenario.';});
  }catch(error){$('model-status').textContent=`Saved scenarios unavailable: ${error.message}`;}
  if(['127.0.0.1','localhost'].includes(location.hostname)&&location.port==='8000'){try{$('backend-url').value=location.origin;await connect(location.origin);}catch{/* Static preview works independently. */}}
+ try{const hosted=await fetch('./data/backend.json').then(r=>r.json());if(!apiBase&&hosted.url){$('backend-url').value=hosted.url;await connect(hosted.url);}}catch{/* The browser worker stays usable when hosting is unavailable. */}
  setLayer();
  return {tick(dt,time){
+ science.tick(dt,time);
  if(catalogInfo&&catalogPoints.visible&&!catalogPending&&performance.now()-catalogLast>1000)requestPositions();
  if(catalogTargets){catalogBlend=Math.min(1,catalogBlend+dt*2);const attr=catalogGeometry.getAttribute('position');if(attr){for(let i=0;i<attr.array.length;i++)attr.array[i]=catalogStart[i]+(catalogTargets[i]-catalogStart[i])*catalogBlend;attr.needsUpdate=true;}}
  if(scenarioPoints&&scenarioPoints.visible&&dt>0)scenarioPoints.rotation.y+=dt*.045;

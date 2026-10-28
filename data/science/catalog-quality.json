@@ -1,0 +1,15 @@
+{
+  "snapshot": "20261028T185305Z",
+  "date": "2026-10-28",
+  "rows": 19497,
+  "duplicate_ids_removed": 0,
+  "classes": {
+    "active": 16823,
+    "debris": 2674
+  },
+  "older_than_14_days": 71,
+  "future_element_epochs": 0,
+  "epoch_min": "2026-09-28 21:46:25.620672+00:00",
+  "epoch_max": "2026-10-28 17:24:25.508736+00:00",
+  "calibration_status": "catalog quality checks only; no physical calibration"
+}

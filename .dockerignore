@@ -4,3 +4,8 @@ node_modules
 results
 __pycache__
 *.pyc
+.state
+.science
+.env
+deploy/.env
+benchmark-results

@@ -10,7 +10,7 @@ const colors = [0xffe079, 0xff8fcb, 0xa6ff83, 0xffab73, 0xc5abff];
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let scene, renderer, camera, controls, earth, clouds, earthGroup, markerGroup, preview;
 let simulationTime = 0, paused = reducedMotion, lastTime = 0, flight = null, selectedId = null;
-let satellites = [], ready = false, colorIndex = 0, frameId, lab = null, breakupCloud = null;
+let satellites = [], ready = false, colorIndex = 0, frameId, lab = null;
 const sunDirection = new THREE.Vector3(3.5, 1.8, 4).normalize();
 let orbitMaterial, rocketGeometry, satelliteGeometry;
 
@@ -125,7 +125,7 @@ async function init() {
     ready = true; $('loading').hidden = true; updateForm(); updateFleet();
     frameId = requestAnimationFrame(animate);
     document.documentElement.dataset.ready = 'true';
-    lab = await setupLab({scene, time:()=>simulationTime, missionCount:()=>satellites.length, breakup:makeBreakupCloud});
+    lab = await setupLab({scene, time:()=>simulationTime, missionCount:()=>satellites.length});
     document.documentElement.dataset.labReady = 'true';
   } catch (error) {
     console.error(error);
@@ -363,11 +363,6 @@ function animate(time) {
   const total = Math.floor(simulationTime), hours = Math.floor(total / 3600), minutes = Math.floor(total / 60) % 60, seconds = total % 60;
   $('elapsed').textContent = `T+ ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   if(lab)lab.tick(paused?0:dt,simulationTime);
-  if(breakupCloud){
-    breakupCloud.age+=paused?0:dt;const attr=breakupCloud.geometry.getAttribute('position');
-    for(let i=0;i<attr.count;i++){const speed=Math.min(1,breakupCloud.age/4);attr.setXYZ(i,breakupCloud.origin.x+breakupCloud.velocity[i*3]*speed,breakupCloud.origin.y+breakupCloud.velocity[i*3+1]*speed,breakupCloud.origin.z+breakupCloud.velocity[i*3+2]*speed);}attr.needsUpdate=true;
-    breakupCloud.material.opacity=Math.max(0,.9-breakupCloud.age/12);if(breakupCloud.age>11){disposeObject(breakupCloud);breakupCloud=null;}
-  }
   controls.update(); renderer.render(scene, camera); frameId = requestAnimationFrame(animate);
 }
 function updatePause() {
@@ -383,12 +378,6 @@ function rebuildOrbits() {
 }
 function rocketStageSeparation(){
   const stage=flight.booster;flight.rocket.updateMatrixWorld(true);scene.attach(stage);flight.separated=true;flight.plume.position.y=-.14;flight.core.position.y=-.12;
-}
-function makeBreakupCloud(count){
-  if(breakupCloud)disposeObject(breakupCloud);
-  const n=Math.min(1500,Math.max(30,count)),positions=new Float32Array(n*3),velocity=new Float32Array(n*3),origin=new THREE.Vector3(1.08,.25,.15).normalize().multiplyScalar(1.14);
-  for(let i=0;i<n;i++){positions.set(origin.toArray(),i*3);const theta=i*2.399963,z=1-2*(i+.5)/n,r=Math.sqrt(1-z*z)*.3;velocity.set([r*Math.cos(theta),r*Math.sin(theta),z*.3],i*3);}
-  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(positions,3));breakupCloud=new THREE.Points(geo,new THREE.PointsMaterial({color:0xffbb7b,size:.02,transparent:true,opacity:.9,depthWrite:false}));breakupCloud.age=0;breakupCloud.origin=origin;breakupCloud.velocity=velocity;scene.add(breakupCloud);camera.position.copy(origin.clone().normalize().multiplyScalar(3.3));controls.target.set(0,0,0);controls.update();message(`Abstract breakup: ${count.toLocaleString()} mean new fragments across scenarios. No weapon flight calculated.`);
 }
 $('mission-form').addEventListener('submit', startLaunch);
 $('place').addEventListener('click', placeSatellite);

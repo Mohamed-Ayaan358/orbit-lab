@@ -16,3 +16,5 @@
 @media(max-width:1050px){.scene-object-legend{left:26px;top:262px;gap:10px}}
 @media(max-width:720px){.scene-object-legend{left:22px;right:15px;top:183px;gap:7px;font-size:9px}.term-help-bubble{font-size:13px}.help-icon{min-width:28px;min-height:28px;justify-content:center}.catalog-key{font-size:12px}.field-heading{min-height:28px}}
 @media(max-width:380px){.scene-object-legend{top:238px;left:20px;font-size:9px}}
+
+.table-scroll{overflow-x:auto;margin:18px 0}table{border-collapse:collapse;width:100%;font-size:12px;text-align:left}th,td{padding:10px 8px;border-bottom:1px solid #ffffff1a;white-space:nowrap}th{color:#b8f6d4}.panel-tabs button{font-size:12px;padding-left:10px;padding-right:10px}

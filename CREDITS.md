@@ -28,3 +28,10 @@ Launch paths are kinematic animations, not dynamically integrated rocket traject
 - SGP4 propagation: [satellite.js](https://github.com/shashwatak/satellite-js), version 6.0.1, MIT license, vendored under `vendor/satellite/`.
 - Public groups provide a partial catalog. Object counts are not complete debris counts; orbital elements are not a physical breakup model.
 - Synthetic population ensemble and fragment-count examples: this project's teaching model. Hypothetical ASAT aftermath is an aggregate breakup event only, with no intercept or weapon dynamics. The selected distribution's mean is an assumption.
+
+## Additional science sources
+
+- [MOCAT-pySSEM](https://github.com/ARCLab-MIT/pyssem), MIT license. Cached synthetic reference output only; not an operational forecast.
+- [NASA Spaceflight Safety Handbook](https://www.nasa.gov/wp-content/uploads/2020/03/spaceflight_safety_handbook_for_operators_v1.5_aug201.pdf): encounter-plane probability assumptions.
+- [CelesTrak usage policy](https://celestrak.org/usage-policy.php): cached, bounded snapshot refresh.
+- [python-sgp4](https://github.com/brandon-rhodes/python-sgp4), MIT license, backend mean-element propagation.

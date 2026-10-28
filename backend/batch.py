@@ -1,7 +1,7 @@
 """Seeded, bounded batches for offline experiments. Run with python -m backend.batch."""
 import argparse,json
 from pathlib import Path
-from .app import Scenario
+from .schemas import Scenario
 from .engine import run_scenario
 
 def batches(total,size):

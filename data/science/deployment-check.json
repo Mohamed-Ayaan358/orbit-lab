@@ -1,0 +1,20 @@
+{
+  "checked_utc": "2026-10-28",
+  "scope": "One bounded deployment smoke/load check; not a long-term stress test",
+  "private_job_runs": 2000,
+  "private_job_years": 50,
+  "private_job_event": "generic abstract breakup",
+  "private_job_elapsed_ms": 4249.7,
+  "screened_catalog_objects": 1000,
+  "screening_hours": 6,
+  "memory_current_mib": 108.8,
+  "container_lifetime_peak_bytes": 145223680,
+  "memory_limit_bytes": 268435456,
+  "memory_plus_swap_limit_bytes": 268435456,
+  "cpu_limit_cores": 0.25,
+  "oom_killed": false,
+  "restart_count": 0,
+  "project_disk_bytes": 252048685,
+  "base_image_bytes": 177320312,
+  "existing_dashboard_container": "remained running; not restarted by deployment"
+}

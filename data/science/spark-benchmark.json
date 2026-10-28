@@ -1,0 +1,117 @@
+{
+  "measurements": [
+    {
+      "master": "local[1]",
+      "spark_version": "4.2.0",
+      "startup_seconds": 4.1316,
+      "compute_write_read_seconds": 5.9766,
+      "summary": {
+        "runs": 10000,
+        "mean_debris": 2063.7173,
+        "std_debris": 326.50794894578434,
+        "debris_quantiles": [
+          1497,
+          2037,
+          2771
+        ]
+      },
+      "python_workers": [
+        {
+          "worker_host": "local-host",
+          "worker_pid": 2982
+        }
+      ],
+      "partitions": 2,
+      "batch_size": 1000,
+      "config": {},
+      "scope": "Local Spark execution on one physical host; not a multi-host scaling claim"
+    },
+    {
+      "master": "local[2]",
+      "spark_version": "4.2.0",
+      "startup_seconds": 3.1279,
+      "compute_write_read_seconds": 5.0025,
+      "summary": {
+        "runs": 10000,
+        "mean_debris": 2063.7173,
+        "std_debris": 326.5079489457837,
+        "debris_quantiles": [
+          1497,
+          2037,
+          2771
+        ]
+      },
+      "python_workers": [
+        {
+          "worker_host": "local-host",
+          "worker_pid": 3048
+        },
+        {
+          "worker_host": "local-host",
+          "worker_pid": 3047
+        }
+      ],
+      "partitions": 4,
+      "batch_size": 1000,
+      "config": {},
+      "scope": "Local Spark execution on one physical host; not a multi-host scaling claim"
+    },
+    {
+      "master": "local[1]",
+      "spark_version": "4.2.0",
+      "startup_seconds": 3.2348,
+      "compute_write_read_seconds": 10.4399,
+      "summary": {
+        "runs": 100000,
+        "mean_debris": 2062.66815,
+        "std_debris": 327.575707408254,
+        "debris_quantiles": [
+          1494,
+          2039,
+          2773
+        ]
+      },
+      "python_workers": [
+        {
+          "worker_host": "local-host",
+          "worker_pid": 3114
+        }
+      ],
+      "partitions": 2,
+      "batch_size": 1000,
+      "config": {},
+      "scope": "Local Spark execution on one physical host; not a multi-host scaling claim"
+    },
+    {
+      "master": "local[2]",
+      "spark_version": "4.2.0",
+      "startup_seconds": 3.2473,
+      "compute_write_read_seconds": 7.8876,
+      "summary": {
+        "runs": 100000,
+        "mean_debris": 2062.66815,
+        "std_debris": 327.5757074082543,
+        "debris_quantiles": [
+          1494,
+          2039,
+          2773
+        ]
+      },
+      "python_workers": [
+        {
+          "worker_host": "local-host",
+          "worker_pid": 3450
+        },
+        {
+          "worker_host": "local-host",
+          "worker_pid": 3451
+        }
+      ],
+      "partitions": 4,
+      "batch_size": 1000,
+      "config": {},
+      "scope": "Local Spark execution on one physical host; not a multi-host scaling claim"
+    }
+  ],
+  "scope": "Cold Spark jobs, single machine, one observation per configuration. Includes compute, writing and reading. No claimed multi-node speedup."
+}

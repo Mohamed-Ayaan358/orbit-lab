@@ -1,0 +1,15 @@
+{
+  "status": "implemented with explicit validation limits",
+  "catalog": "validated atomic snapshot and partitioned-Parquet ingestion",
+  "fragment_orbits": "two-body RK4, assumed velocity offsets; closure and energy checks passed",
+  "sgp4_screening": "coarse sampled distances, not operational conjunction assessment",
+  "encounter_probability": "Gaussian disk integration; analytic reference checks passed",
+  "mocat": "full pySSEM numerical run on synthetic fixture, not catalog-calibrated",
+  "spark": "executed local one/two-worker jobs; no multi-host benchmark",
+  "historical_validation": "pending real observations and physical input definitions",
+  "tests": {
+    "python": 17,
+    "javascript": 20
+  },
+  "hosted_api": "256 MiB hard memory, no additional swap, quarter CPU, one compute operation at a time"
+}

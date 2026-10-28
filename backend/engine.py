@@ -1,6 +1,5 @@
 """Uncalibrated population teaching model. No weapon or intercept dynamics."""
 import numpy as np
-from scipy import stats
 LIMIT=100_000_000
 
 def fragment_draw(rng, model, mean, size, dispersion=5.0, cv=.8, events=None):
