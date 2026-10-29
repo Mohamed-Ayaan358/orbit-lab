@@ -1,11 +1,11 @@
 {
-  "snapshot": "20261029T054258Z",
+  "snapshot": "20261029T125610Z",
   "date": "2026-10-29",
-  "rows": 19492,
+  "rows": 19493,
   "duplicate_ids_removed": 0,
   "classes": {
     "active": 16819,
-    "debris": 2673
+    "debris": 2674
   },
   "older_than_14_days": 69,
   "future_element_epochs": 2,
