@@ -22,6 +22,28 @@ An interactive 3D Earth, catalog viewer and statistical population sandbox. The 
 - Inspect an executed MOCAT-pySSEM synthetic reference and local Spark benchmark.
 - Use the hosted Python preview, private persistent jobs, or the [local backend](backend/README.md).
 
+## Tech stack
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| Frontend | HTML, CSS, JavaScript modules | Interface, controls and tooltips |
+| 3D rendering | Three.js | Earth, satellite models and launch animations |
+| Browser computation | Web Workers | Orbit updates and simulations without blocking the interface |
+| Charts | Custom SVG | Interactive graphs with keyboard and pointer inspection |
+| Orbit propagation | satellite.js and Python SGP4 | Estimate object positions from saved orbital elements |
+| Backend | Python, FastAPI, Uvicorn | Serve the simulation API and process bounded requests |
+| Numerical computing | NumPy, SciPy | Population simulations and assumed encounter probabilities |
+| Job storage | SQLite | Persist the single-worker calculation queue and results |
+| Hosting | GitHub Pages; Docker on a VPS behind the existing Traefik proxy | Static website and separate Python service |
+| Automation | GitHub Actions | Tests, site publication and scheduled catalog refresh |
+| Local data engineering | pandas, PyArrow, Parquet | Validate, transform and store datasets |
+| Local batch processing | PySpark | Run larger simulation batches and benchmark worker execution |
+| Separate research model | MOCAT-pySSEM | Produce the cached synthetic reference experiment |
+
+**Data source:** CelesTrak supplies orbital elements for selected satellite and debris groups. CelesTrak is a data provider; SGP4 is the algorithm used to estimate positions.
+
+The heavier data engineering, Spark and pySSEM tools run locally, not on the VPS. The website displays their saved outputs. The hosted backend is configured for a 256 MiB memory limit and 0.25 CPU core; current use depends on the workload.
+
 ## Run locally
 
 From this folder:
