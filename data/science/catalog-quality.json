@@ -1,15 +1,15 @@
 {
-  "snapshot": "20261030T221600Z",
-  "date": "2026-10-30",
-  "rows": 19520,
+  "snapshot": "20261031T053530Z",
+  "date": "2026-10-31",
+  "rows": 19522,
   "duplicate_ids_removed": 0,
   "classes": {
-    "active": 16847,
+    "active": 16849,
     "debris": 2673
   },
-  "older_than_14_days": 78,
+  "older_than_14_days": 69,
   "future_element_epochs": 2,
-  "epoch_min": "2026-09-30 22:42:30.534336+00:00",
+  "epoch_min": "2026-10-01 05:26:03.163200+00:00",
   "epoch_max": "2026-10-31 23:34:11.626464+00:00",
   "calibration_status": "catalog quality checks only; no physical calibration"
 }
