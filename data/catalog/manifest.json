@@ -2,45 +2,45 @@
   "groups": [
     {
       "group": "active",
-      "file": "./data/catalog/snapshots/20261031T053530Z/active.json",
-      "count": 16849,
+      "file": "./data/catalog/snapshots/20261031T213011Z/active.json",
+      "count": 16848,
       "source": "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=json",
-      "retrieved_utc": "2026-10-31T05:35:30.720928+00:00",
+      "retrieved_utc": "2026-10-31T21:30:11.628900+00:00",
       "epoch_min": "2026-10-06T01:26:53.630880",
-      "epoch_max": "2026-10-31T23:34:11.626464",
-      "sha256": "84f51a76fddb9f5388ebeb9213dda4e2ef5d7f2bb5a9d29e477072367dcaa824"
+      "epoch_max": "2026-11-02T21:20:17.560896",
+      "sha256": "ac4a11e91da2afb15f6f1312c4d8ba6ba993db1f5e1202994f89bec6fb7e646d"
     },
     {
       "group": "fengyun-1c-debris",
-      "file": "./data/catalog/snapshots/20261031T053530Z/fengyun-1c-debris.json",
-      "count": 1980,
+      "file": "./data/catalog/snapshots/20261031T213011Z/fengyun-1c-debris.json",
+      "count": 1978,
       "source": "https://celestrak.org/NORAD/elements/gp.php?GROUP=fengyun-1c-debris&FORMAT=json",
-      "retrieved_utc": "2026-10-31T05:35:30.720928+00:00",
-      "epoch_min": "2026-10-01T05:26:03.163200",
-      "epoch_max": "2026-10-30T22:20:43.300608",
-      "sha256": "13fc03a19467784a827338303fd48f7ee9e90db74674343684b668329460463d"
+      "retrieved_utc": "2026-10-31T21:30:11.628900+00:00",
+      "epoch_min": "2026-10-02T04:42:30.524832",
+      "epoch_max": "2026-10-31T12:41:02.627232",
+      "sha256": "8e6613375e97a6aad8c2a39aa594f5c9b018db1a38131294d655dcb507672f3c"
     },
     {
       "group": "cosmos-2251-debris",
-      "file": "./data/catalog/snapshots/20261031T053530Z/cosmos-2251-debris.json",
+      "file": "./data/catalog/snapshots/20261031T213011Z/cosmos-2251-debris.json",
       "count": 584,
       "source": "https://celestrak.org/NORAD/elements/gp.php?GROUP=cosmos-2251-debris&FORMAT=json",
-      "retrieved_utc": "2026-10-31T05:35:30.720928+00:00",
+      "retrieved_utc": "2026-10-31T21:30:11.628900+00:00",
       "epoch_min": "2026-10-04T06:44:04.818048",
-      "epoch_max": "2026-10-30T22:25:17.408928",
-      "sha256": "0a5380a41af139050e02a93f202d3d577dd75b2085350777d10f1ab2299c9ec9"
+      "epoch_max": "2026-10-31T11:59:44.477376",
+      "sha256": "aa826d58c84a620aa8f59e0a8125150fd8be1bc8eea74c67237665c275678dd1"
     },
     {
       "group": "iridium-33-debris",
-      "file": "./data/catalog/snapshots/20261031T053530Z/iridium-33-debris.json",
+      "file": "./data/catalog/snapshots/20261031T213011Z/iridium-33-debris.json",
       "count": 109,
       "source": "https://celestrak.org/NORAD/elements/gp.php?GROUP=iridium-33-debris&FORMAT=json",
-      "retrieved_utc": "2026-10-31T05:35:30.720928+00:00",
+      "retrieved_utc": "2026-10-31T21:30:11.628900+00:00",
       "epoch_min": "2026-10-09T04:46:20.253792",
-      "epoch_max": "2026-10-30T22:17:26.232576",
-      "sha256": "c63360cecd2aecff9d3271df131e6ce356982dcd5a6d7c5984f5a9c6032c1a56"
+      "epoch_max": "2026-10-31T10:42:36.038016",
+      "sha256": "6804586ee801902c68fe6ddde72bf794dfc11cf5df7a6d8eebc355afc7243180"
     }
   ],
-  "snapshot_id": "20261031T053530Z",
+  "snapshot_id": "20261031T213011Z",
   "note": "Selected public groups, not all objects in space. Snapshot, not live tracking."
 }
