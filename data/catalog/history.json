@@ -308,5 +308,15 @@
       "cosmos-2251-debris": 583,
       "iridium-33-debris": 109
     }
+  },
+  {
+    "snapshot_id": "20261110T194122Z",
+    "retrieved_utc": "2026-11-10T19:41:22.077359+00:00",
+    "counts": {
+      "active": 16903,
+      "fengyun-1c-debris": 1986,
+      "cosmos-2251-debris": 582,
+      "iridium-33-debris": 109
+    }
   }
 ]
