@@ -1,13 +1,13 @@
 {
-  "snapshot": "20261109T221735Z",
-  "date": "2026-11-09",
-  "rows": 19564,
+  "snapshot": "20261110T071208Z",
+  "date": "2026-11-10",
+  "rows": 19571,
   "duplicate_ids_removed": 0,
   "classes": {
-    "active": 16893,
-    "debris": 2671
+    "active": 16894,
+    "debris": 2677
   },
-  "older_than_14_days": 43,
+  "older_than_14_days": 44,
   "future_element_epochs": 2,
   "epoch_min": "2026-10-11 17:31:09.794208+00:00",
   "epoch_max": "2026-11-10 22:53:33.336384+00:00",
