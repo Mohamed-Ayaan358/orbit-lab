@@ -1,15 +1,15 @@
 {
-  "snapshot": "20261114T061435Z",
+  "snapshot": "20261114T221954Z",
   "date": "2026-11-14",
-  "rows": 19574,
+  "rows": 19559,
   "duplicate_ids_removed": 0,
   "classes": {
-    "active": 16896,
+    "active": 16881,
     "debris": 2678
   },
-  "older_than_14_days": 40,
+  "older_than_14_days": 33,
   "future_element_epochs": 2,
-  "epoch_min": "2026-10-15 12:01:45.636096+00:00",
+  "epoch_min": "2026-10-16 10:41:43.950048+00:00",
   "epoch_max": "2026-11-16 02:39:43.913088+00:00",
   "calibration_status": "catalog quality checks only; no physical calibration"
 }
